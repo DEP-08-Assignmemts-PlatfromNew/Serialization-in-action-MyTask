@@ -1,45 +1,39 @@
 package lk.ijse.dep8.control;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import lk.ijse.dep8.util.CustomerTM;
+import lk.ijse.dep8.util.Customer;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 
 public class MainInterfaceControl {
+    private final Path sourcePath = Paths.get("dataSource/customers.dep8");
     public TextField txtId;
     public TextField txtName;
     public TextField txtAddress;
     public Button btnSave;
     public Button btnReset;
-    public TableView<CustomerTM> tblCustomer;
-    public TableColumn colId;
-    public TableColumn colName;
-    public TableColumn colAddress;
-    public TableColumn colOpt;
-
-    private CustomerTM customerObj;
+    public TableView<Customer> tblCustomer;
 
     public void initialize() throws IOException {
-        readCustomerObject();
 
+        initDataSource();
 
-        // TODO: 3/11/22 create load to object from table
+        tblCustomer.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
+        tblCustomer.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("name"));
+        tblCustomer.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("address"));
 
-       tblCustomer.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
-       tblCustomer.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("name"));
-       tblCustomer.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("address"));
-
-        TableColumn<CustomerTM, Button> colOpt =
-                (TableColumn<CustomerTM, Button>) tblCustomer.getColumns().get(3);
+        TableColumn<Customer, Button> colOpt =
+                (TableColumn<Customer, Button>) tblCustomer.getColumns().get(3);
 
         colOpt.setCellValueFactory(param -> {
             Button btnDel = new Button("Delete");
@@ -50,29 +44,39 @@ public class MainInterfaceControl {
 
     }
 
-    private void readCustomerObject() throws IOException {
-
-        Path path = Paths.get("/home/thanura/Desktop/CustomerData/CustomerData.txt");
-
-        if(!Files.exists(path)){
-            System.err.println("No Such File Found");
-            return;
-        }
-
+    private void initDataSource() {
         try {
-            InputStream is = Files.newInputStream(path);
-            ObjectInputStream ois = new ObjectInputStream(is);
+            if (!Files.exists(sourcePath)) {
+                Files.createDirectory(sourcePath.getParent()); //create parent folder
+                Files.createFile(sourcePath); ////create files in parent folder
+            }
 
+            readSavedData();
 
-            CustomerTM c  = (CustomerTM) ois.readObject();
-            c.printData();
-
-
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to create source file").showAndWait();
+            Platform.exit();
         }
-
     }
+
+    private void readSavedData() {
+        try {
+            InputStream is = Files.newInputStream(sourcePath, StandardOpenOption.READ);
+            ObjectInputStream ois = new ObjectInputStream(is);
+            tblCustomer.getItems().clear();
+            tblCustomer.setItems(FXCollections.observableArrayList((ArrayList<Customer>) ois.readObject()));
+
+
+        } catch (IOException | ClassNotFoundException e) {
+            if (!(e instanceof EOFException)) {
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, "Failed to Load Data").show();
+
+            }
+        }
+    }
+
 
     public void btnSave_OnAction(ActionEvent actionEvent) throws IOException {
         if (!txtId.getText().matches("C\\d{3}") || tblCustomer.getItems().stream().anyMatch(c -> c.getId().equalsIgnoreCase(txtId.getText()))) {
@@ -91,32 +95,40 @@ public class MainInterfaceControl {
             return;
         }
 
-        CustomerTM customerObj = new CustomerTM(
+
+        Customer customerObj = new Customer(
                 txtId.getText(),
                 txtName.getText(),
                 txtAddress.getText()
         );
         tblCustomer.getItems().add(customerObj);
+        boolean result = storeData();
 
-        writeData(customerObj);
+        if (!result) {
+            new Alert(Alert.AlertType.ERROR, "Failed to Save").show();
+            tblCustomer.getItems().remove(customerObj);
+
+        } else {
+            new Alert(Alert.AlertType.INFORMATION, "Saved Data Successfully").show();
+            txtId.clear();
+            txtName.clear();
+            txtAddress.clear();
+
+        }
+
     }
 
-    private void writeData(CustomerTM customerObj) throws IOException {
-        String homePath = System.getProperty("user.home");
-        Path dirPath = Paths.get(homePath, "Desktop", "CustomerData");
+    private boolean storeData() {
+        try {
+            ObjectOutputStream oos =
+                    new ObjectOutputStream(Files.newOutputStream(sourcePath, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
+            oos.writeObject(new ArrayList<Customer>(tblCustomer.getItems()));
+            return true;
 
-        if(!Files.isDirectory(dirPath)){
-            Files.createDirectory(dirPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
         }
-        Path filePath = Paths.get(dirPath.toString(), "CustomerData.txt");
-
-        if(!Files.exists(filePath)){
-            Files.createFile(filePath);
-        }
-
-        OutputStream fos = Files.newOutputStream(filePath);
-        ObjectOutputStream oos = new ObjectOutputStream(fos);
-        oos.writeObject(customerObj);
 
 
     }
@@ -126,8 +138,8 @@ public class MainInterfaceControl {
         txtName.clear();
         txtAddress.clear();
         tblCustomer.getItems().clear();
-        }
+    }
 
-   }
+}
 
 

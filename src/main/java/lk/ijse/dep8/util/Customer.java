@@ -2,15 +2,15 @@ package lk.ijse.dep8.util;
 
 import java.io.Serializable;
 
-public class CustomerTM implements Serializable {
+public class Customer implements Serializable {
     private String id;
     private String name;
     private String address;
 
-    public CustomerTM() {
+    public Customer() {
     }
 
-    public CustomerTM(String id, String name, String address) {
+    public Customer(String id, String name, String address) {
         this.setId(id);
         this.setName(name);
         this.setAddress(address);
