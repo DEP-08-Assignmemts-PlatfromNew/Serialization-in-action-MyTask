@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane stylesheets="/style/style.css" prefHeight="757.0" prefWidth="821.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lk.ijse.dep8.control.MainInterfaceControl">
+<AnchorPane prefHeight="757.0" prefWidth="821.0" stylesheets="/style/style.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lk.ijse.dep8.control.MainInterfaceControl">
    <children>
       <Label layoutX="39.0" layoutY="47.0" text="Manage Customers">
          <font>
@@ -42,7 +42,7 @@
       </VBox>
       <VBox layoutX="181.0" layoutY="188.0" prefHeight="144.0" prefWidth="603.0" spacing="20.0">
          <children>
-            <TextField fx:id="txtId" promptText="Ex: C001">
+            <TextField fx:id="txtId" editable="false" promptText="Ex: C001">
                <font>
                   <Font size="14.0" />
                </font>
@@ -69,7 +69,7 @@
             <Font name="System Bold" size="19.0" />
          </font>
       </Button>
-      <TableView styleClass="table-data" fx:id="tblCustomer" layoutX="39.0" layoutY="423.0" prefHeight="283.0" prefWidth="749.0">
+      <TableView fx:id="tblCustomer" layoutX="39.0" layoutY="423.0" prefHeight="283.0" prefWidth="749.0" styleClass="table-data">
         <columns>
           <TableColumn prefWidth="105.0" text="ID" />
           <TableColumn prefWidth="214.0" text="Name" />

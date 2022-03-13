@@ -3,6 +3,7 @@ package lk.ijse.dep8.control;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -41,6 +42,10 @@ public class MainInterfaceControl {
     public void initialize() {
 
         initDataSource();
+        rbtMale.requestFocus();
+        getCustomerId();
+        txtId.setText(getCustomerId());
+
 
         tblCustomer.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
         tblCustomer.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -77,6 +82,17 @@ public class MainInterfaceControl {
             txtProPic.setText("Edit your profile picture");
 
         });
+    }
+
+    private String getCustomerId() {
+        if (tblCustomer.getItems().isEmpty()) {
+            return "C001";
+        } else {
+            ObservableList<Customer> customers = tblCustomer.getItems();
+            int lastCustomerId = Integer.parseInt(customers.get(customers.size() - 1).getId().replace("C", ""));
+            return String.format("C%03d", (lastCustomerId + 1));
+        }
+
     }
 
     private void initDataSource() {
@@ -141,18 +157,11 @@ public class MainInterfaceControl {
                 Path selectedImgPath = Paths.get(txtProPic.getText());
                 profilePicture = Files.readAllBytes(selectedImgPath);
 
-
             } else {
                 profilePicture = Files.readAllBytes(defaultImage);
             }
 
-
-            if (!txtId.getText().matches("C\\d{3}") || tblCustomer.getItems().stream().anyMatch(c -> c.getId().equalsIgnoreCase(txtId.getText()))) {
-                txtId.requestFocus();
-                txtId.selectAll();
-                return;
-
-            } else if (txtName.getText().trim().isEmpty()) {
+             if (txtName.getText().trim().isEmpty()) {
                 txtName.requestFocus();
                 txtName.selectAll();
                 return;
