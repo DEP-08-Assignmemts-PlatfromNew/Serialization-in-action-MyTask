@@ -17,39 +17,28 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class MainInterfaceControl {
 
     private final Path sourcePath = Paths.get("dataSource/customerData.dep8");
-    private Path defaultImage = Paths.get("assets/MaleIcon.png");
-
-
     public TextField txtId;
-
     public TextField txtName;
-
     public TextField txtAddress;
-
     public Button btnSave;
-
     public Button btnReset;
-
     public TableView<Customer> tblCustomer;
-
     public TextField txtProPic;
     public Button btnBrowse;
     public ImageView imgProfile;
     public RadioButton rbtMale;
     public RadioButton rbtFemale;
-
-    private Button btnDelete;
-   // Path imagePath;
+    // Path imagePath;
     byte[] profilePicture;
     Customer customer;
+    private Path defaultImage = Paths.get("assets/MaleIcon.png");
+    private Button btnDelete;
 
-
-    public void initialize(){
+    public void initialize() {
 
         initDataSource();
 
@@ -60,7 +49,7 @@ public class MainInterfaceControl {
         TableColumn<Customer, ImageView> colProPic =
                 (TableColumn<Customer, ImageView>) tblCustomer.getColumns().get(3);
         colProPic.setCellValueFactory(param -> {
-            profilePicture= param.getValue().getProfilePic();
+            profilePicture = param.getValue().getProfilePic();
             ByteArrayInputStream bis = new ByteArrayInputStream(profilePicture);
             ImageView imgVw = new ImageView(new Image(bis));
             imgVw.setFitWidth(80);
@@ -72,7 +61,7 @@ public class MainInterfaceControl {
                 (TableColumn<Customer, Button>) tblCustomer.getColumns().get(4);
 
         colOpt.setCellValueFactory(param -> {
-             btnDelete = new Button("Delete");
+            btnDelete = new Button("Delete");
 
             btnDelete.setOnAction((event -> tblCustomer.getItems().remove(param.getValue())));
             return new ReadOnlyObjectWrapper<>(btnDelete);
@@ -116,10 +105,11 @@ public class MainInterfaceControl {
         defaultImage = Paths.get("assets/femaleIcon.png");
 
     }
+
     public void btnBrowse_OnAction(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
-          "Images","*jpeg","*.jpg","*.png","*.bmp"
+                "Images", "*jpeg", "*.jpg", "*.png", "*.bmp"
         ));
         fileChooser.setTitle("Select your profile Image");
         File file = fileChooser.showOpenDialog(btnBrowse.getScene().getWindow());
@@ -147,12 +137,12 @@ public class MainInterfaceControl {
 
         if (btnSave.getText().equals("Save")) {
 
-            if(!txtProPic.getText().trim().isEmpty()){
+            if (!txtProPic.getText().trim().isEmpty()) {
                 Path selectedImgPath = Paths.get(txtProPic.getText());
                 profilePicture = Files.readAllBytes(selectedImgPath);
 
 
-            }else {
+            } else {
                 profilePicture = Files.readAllBytes(defaultImage);
             }
 
@@ -192,6 +182,7 @@ public class MainInterfaceControl {
                 txtId.clear();
                 txtName.clear();
                 txtAddress.clear();
+                txtProPic.clear();
 
             }
         } else if (btnSave.getText().equals("Update")) {
@@ -212,7 +203,7 @@ public class MainInterfaceControl {
     private boolean storeData() {
         try {
             ObjectOutputStream oos =
-                    new ObjectOutputStream(Files.newOutputStream(sourcePath, StandardOpenOption.WRITE,StandardOpenOption.TRUNCATE_EXISTING));
+                    new ObjectOutputStream(Files.newOutputStream(sourcePath, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
             oos.writeObject(new ArrayList<>(tblCustomer.getItems()));
             return true;
 
@@ -221,6 +212,7 @@ public class MainInterfaceControl {
             return false;
         }
     }
+
     public void btnReset_OnAction(ActionEvent actionEvent) {
         txtProPic.clear();
         txtId.clear();
@@ -228,7 +220,6 @@ public class MainInterfaceControl {
         txtAddress.clear();
 
     }
-
 
 
 }
