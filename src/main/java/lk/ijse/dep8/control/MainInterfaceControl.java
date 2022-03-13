@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class MainInterfaceControl {
 
-    private final Path sourcePath = Paths.get("dataSource/customers.dep8");
+    private final Path sourcePath = Paths.get("dataSource/customerData.dep8");
     private Path defaultImage = Paths.get("assets/MaleIcon.png");
 
 
