@@ -1,6 +1,6 @@
 # Introduction and the Objective
 
-This application is created to implement the Serialization process of the Java programming language.  
+This application is created with implement the Serialization process of the Java programming language.  
 The user inputs data of the interface stored at a predefined file in the permanent computer memory (in the installed HDD or SSD) with a  given extension as .dep8. 
 Stored data can be updated through the app and saved again and again.
 
