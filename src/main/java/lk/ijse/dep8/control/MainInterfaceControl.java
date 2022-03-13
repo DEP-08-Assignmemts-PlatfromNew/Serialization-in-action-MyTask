@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainInterfaceControl {
 
@@ -43,7 +44,9 @@ public class MainInterfaceControl {
     public RadioButton rbtFemale;
 
     private Button btnDelete;
-    Path imagePath;
+   // Path imagePath;
+    byte[] profilePicture;
+    Customer customer;
 
 
     public void initialize(){
@@ -57,8 +60,8 @@ public class MainInterfaceControl {
         TableColumn<Customer, ImageView> colProPic =
                 (TableColumn<Customer, ImageView>) tblCustomer.getColumns().get(3);
         colProPic.setCellValueFactory(param -> {
-            byte[] profilePic = param.getValue().getProfilePic();
-            ByteArrayInputStream bis = new ByteArrayInputStream(profilePic);
+            profilePicture= param.getValue().getProfilePic();
+            ByteArrayInputStream bis = new ByteArrayInputStream(profilePicture);
             ImageView imgVw = new ImageView(new Image(bis));
             imgVw.setFitWidth(80);
             imgVw.setFitHeight(80);
@@ -142,17 +145,19 @@ public class MainInterfaceControl {
 
     public void btnSave_OnAction(ActionEvent actionEvent) throws IOException {
 
-        byte[] profilePicture = new byte[0];
         if (btnSave.getText().equals("Save")) {
 
             if(!txtProPic.getText().trim().isEmpty()){
-                profilePicture = Files.readAllBytes(Paths.get(txtProPic.getText()));
+                Path selectedImgPath = Paths.get(txtProPic.getText());
+                profilePicture = Files.readAllBytes(selectedImgPath);
+
+
             }else {
                 profilePicture = Files.readAllBytes(defaultImage);
             }
 
 
-            if (!txtId.getText().matches("C\\d{5}") || tblCustomer.getItems().stream().anyMatch(c -> c.getId().equalsIgnoreCase(txtId.getText()))) {
+            if (!txtId.getText().matches("C\\d{3}") || tblCustomer.getItems().stream().anyMatch(c -> c.getId().equalsIgnoreCase(txtId.getText()))) {
                 txtId.requestFocus();
                 txtId.selectAll();
                 return;
@@ -168,7 +173,7 @@ public class MainInterfaceControl {
                 return;
             }
 
-            Customer customerObj = new Customer(
+            customer = new Customer(
                     txtId.getText(),
                     txtName.getText(),
                     txtAddress.getText(),
@@ -176,12 +181,12 @@ public class MainInterfaceControl {
 
             );
 
-            tblCustomer.getItems().add(customerObj);
+            tblCustomer.getItems().add(customer);
             boolean result = storeData();
 
             if (!result) {
                 new Alert(Alert.AlertType.ERROR, "Failed to Save").show();
-                tblCustomer.getItems().remove(customerObj);
+                tblCustomer.getItems().remove(customer);
 
             } else {
                 txtId.clear();
@@ -190,22 +195,24 @@ public class MainInterfaceControl {
 
             }
         } else if (btnSave.getText().equals("Update")) {
-
+            profilePicture = Files.readAllBytes(Paths.get(txtProPic.getText()));
 
             //update method run
-            Customer selectedCustomer = tblCustomer.getSelectionModel().getSelectedItem();
-            selectedCustomer.setProfilePic(profilePicture);
-            selectedCustomer.setId(txtId.getText());
-            selectedCustomer.setName(txtName.getText());
-            selectedCustomer.setAddress(txtAddress.getText());
+
+            customer = tblCustomer.getSelectionModel().getSelectedItem();
+            customer.setProfilePic(profilePicture);
+            customer.setId(txtId.getText());
+            customer.setName(txtName.getText());
+            customer.setAddress(txtAddress.getText());
             tblCustomer.refresh();
+            storeData();
         }
     }
 
     private boolean storeData() {
         try {
             ObjectOutputStream oos =
-                    new ObjectOutputStream(Files.newOutputStream(sourcePath, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
+                    new ObjectOutputStream(Files.newOutputStream(sourcePath, StandardOpenOption.WRITE,StandardOpenOption.TRUNCATE_EXISTING));
             oos.writeObject(new ArrayList<>(tblCustomer.getItems()));
             return true;
 
@@ -213,9 +220,7 @@ public class MainInterfaceControl {
             e.printStackTrace();
             return false;
         }
-
     }
-
     public void btnReset_OnAction(ActionEvent actionEvent) {
         txtProPic.clear();
         txtId.clear();
