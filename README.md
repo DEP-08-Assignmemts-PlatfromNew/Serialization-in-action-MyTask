@@ -12,4 +12,4 @@ Especially here focused and practically pointed to the Serialization process of 
 
 # Licensing
 
-This application is licensed as an [MIT](./License.txt) License. Copyright © 2022 – Present|Thanura Silva
+This application is licensed as an [MIT](./License.txt) License. Copyright © 2022 – Present |Thanura Silva
