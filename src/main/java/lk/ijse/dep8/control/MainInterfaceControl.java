@@ -13,6 +13,7 @@ import javafx.stage.FileChooser;
 import lk.ijse.dep8.util.Customer;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,7 +34,6 @@ public class MainInterfaceControl {
     public ImageView imgProfile;
     public RadioButton rbtMale;
     public RadioButton rbtFemale;
-    // Path imagePath;
     byte[] profilePicture;
     Customer customer;
     private Path defaultImage = Paths.get("assets/MaleIcon.png");
@@ -123,13 +123,20 @@ public class MainInterfaceControl {
     }
 
     public void btnBrowse_OnAction(ActionEvent actionEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
-                "Images", "*jpeg", "*.jpg", "*.png", "*.bmp"
-        ));
-        fileChooser.setTitle("Select your profile Image");
-        File file = fileChooser.showOpenDialog(btnBrowse.getScene().getWindow());
-        txtProPic.setText(file != null ? file.getAbsolutePath() : "No Image Data");
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
+                    "Images", "*jpeg", "*.jpg", "*.png", "*.bmp"
+            ));
+            fileChooser.setTitle("Select your profile Image");
+            File file = fileChooser.showOpenDialog(btnBrowse.getScene().getWindow());
+            txtProPic.setText(file != null ? file.getAbsolutePath() : "No Image Data");
+            imgProfile.setImage( new Image(String.valueOf(file.toURI().toURL()))); //due to deprecate direct convert to URL
+
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void readSavedData() {
